@@ -14,7 +14,6 @@ function Header({currentUser, signOut, ...otherProps}) {
             
         }
     }
-    console.log(currentUser);
     return (
         <div className="header">
             <Link className='logo-container' to="/">
