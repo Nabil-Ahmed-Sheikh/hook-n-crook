@@ -1,11 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { auth } from '../../firebase/firebase.utils';
+import { useSelector } from 'react-redux';
+
 import { ReactComponent as Logo } from '../../assets/crown.svg'
 import './Header.scss';
 
 
-function Header({currentUser, signOut, ...otherProps}) {
+function Header({signOut, ...otherProps}) {
+
+    const currentUser = useSelector(state => state.currentUser)
     
     const sign_out = async () => {
         try {
@@ -37,5 +41,7 @@ function Header({currentUser, signOut, ...otherProps}) {
         </div>
     );
 }
+
+
 
 export default Header;

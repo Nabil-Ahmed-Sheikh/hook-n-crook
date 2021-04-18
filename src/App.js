@@ -1,15 +1,20 @@
-import './App.css';
+import { useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+import { setCurrentUser } from './redux/user/user-actions'
+import { useSelector, useDispatch } from 'react-redux';
+
+
+import Header from './components/Header/Header';
 import HomePage from './pages/HomePage/HomePage';
 import ShopPage from './pages/ShopPage/ShopPage';
 import SignInAndSignUpPage from './pages/SignInAndSignUpPage/SignInAndSignUpPage';
-import Header from './components/Header/Header';
-import { auth, createUserProfileDocument } from './firebase/firebase.utils';
-import { useEffect, useState } from 'react';
+
+import './App.css';
 
 function App() {
   
-  const [currentUser, setCurrentUser] = useState(null);
 
   let unsubscribeFromAuth = null;
 
@@ -17,17 +22,22 @@ function App() {
     setCurrentUser(null)
   }
 
+  let dispatch = useDispatch()
+
   useEffect( () => {  
+
     unsubscribeFromAuth = auth.onAuthStateChanged( async userAuth => {
       if(userAuth){
         const userRef = await createUserProfileDocument(userAuth);
         userRef.onSnapshot(snapShot => {
-          setCurrentUser({
-            id: snapShot.id,
-            ...snapShot
+          dispatch({
+            type:"SET_CURRENT_USER",
+            payload:{
+              id: snapShot.id,
+              ...snapShot
+            }
           })
         })
-        console.log(currentUser);
       } else {
         setCurrentUser(null)
       }
@@ -40,7 +50,7 @@ function App() {
 
   return (
     <div>
-      <Header currentUser={currentUser} signOut={signOut} />
+      <Header signOut={signOut} />
       <Switch>
         <Route exact path='/' component={HomePage} />
         <Route path='/shop' component={ShopPage} />
@@ -49,5 +59,7 @@ function App() {
     </div>
   );
 }
+
+
 
 export default App;
