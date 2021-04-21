@@ -1,19 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { auth } from '../../firebase/firebase.utils';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+
 
 import { ReactComponent as Logo } from '../../assets/crown.svg'
 import './Header.scss';
 
 
-function Header({signOut, ...otherProps}) {
+function Header({...otherProps}) {
 
-    const currentUser = useSelector(state => state.currentUser)
+    const currentUser = useSelector(state => state.user.currentUser);
+    const dispatch = useDispatch();
+
+    // console.log(currentUser);
     
     const sign_out = async () => {
         try {
-            await auth.signOut();
+            auth.signOut().then(() => (
+                dispatch({
+                    type:"SET_CURRENT_USER",
+                    payload: null
+                })
+            ))
         } catch (error) {
             
         }

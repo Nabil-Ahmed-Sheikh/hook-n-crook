@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { connect } from 'react-redux';
 import { auth, createUserProfileDocument } from './firebase/firebase.utils';
 import { setCurrentUser } from './redux/user/user-actions'
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 
 import Header from './components/Header/Header';
@@ -14,9 +13,6 @@ import SignInAndSignUpPage from './pages/SignInAndSignUpPage/SignInAndSignUpPage
 import './App.css';
 
 function App() {
-  
-
-  let unsubscribeFromAuth = null;
 
   const signOut = () => {
     setCurrentUser(null)
@@ -25,28 +21,23 @@ function App() {
   let dispatch = useDispatch()
 
   useEffect( () => {  
-
-    unsubscribeFromAuth = auth.onAuthStateChanged( async userAuth => {
+    auth.onAuthStateChanged( async userAuth => {
       if(userAuth){
         const userRef = await createUserProfileDocument(userAuth);
-        userRef.onSnapshot(snapShot => {
+        await userRef.onSnapshot((snapshot) => (
           dispatch({
             type:"SET_CURRENT_USER",
             payload:{
-              id: snapShot.id,
-              ...snapShot
+              id: snapshot.id,
+              displayName: snapshot.data().displayName,
+              email: snapshot.data().email
             }
           })
-        })
-      } else {
-        setCurrentUser(null)
+        ))
       }
     })
   },[])
 
-  // useEffect(() => {  
-  //   unsubscribeFromAuth();
-  // },[])
 
   return (
     <div>

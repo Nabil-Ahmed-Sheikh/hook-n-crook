@@ -28,7 +28,7 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
                 createdAt,
                 ...additionalData
             })
-            
+            console.log();
         } catch (error) {
             console.log('error creating user', error);
         }
@@ -45,6 +45,6 @@ export const firestore = firebase.firestore();
 
 const provider = new firebase.auth.GoogleAuthProvider();
 provider.setCustomParameters({prompt: 'select_account'});
-export const signInWithGoogle = () => auth.signInWithPopup(provider);
+export const signInWithGoogle = () => auth.signInWithPopup(provider)
 
 export default firebase;
