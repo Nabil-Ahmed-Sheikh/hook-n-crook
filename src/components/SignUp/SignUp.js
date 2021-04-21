@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 import FormInput from "../FormInput/FormInput";
 import CustomButton from "../CustomButton/CustomButton";
@@ -14,6 +15,8 @@ function SignUp(props) {
         confirmPassword: ''
     })
 
+    const dispatch = useDispatch();
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         const {displayName, email, password, confirmPassword} = formData;
@@ -24,19 +27,22 @@ function SignUp(props) {
         }
 
         try {
-            const { user } = await auth.createUserWithEmailAndPassword(email, password);
-
-            await createUserProfileDocument(user, {displayName});
-
-            setFormData({
-                displayName: '',
-                email: '',
-                password: '',
-                confirmPassword: ''
-            })
+            const { userAuth } = await auth.createUserWithEmailAndPassword(email, password);
+           
+            const userRef = await createUserProfileDocument(userAuth, {displayName});
+            await userRef.onSnapshot((snapshot) => (
+                dispatch({
+                    type:"SET_CURRENT_USER",
+                    payload:{
+                    id: snapshot.id,
+                    displayName: displayName,
+                    email: snapshot.data().email
+                    }
+                })
+            ))
 
         } catch (error) {
-            console.log(error);
+            alert(error.message)
         }
 
     }
