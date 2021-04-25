@@ -1,18 +1,24 @@
 import { useEffect } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+
+
 import { setCurrentUser } from './redux/user/user-actions'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 
 import Header from './components/Header/Header';
 import HomePage from './pages/HomePage/HomePage';
 import ShopPage from './pages/ShopPage/ShopPage';
 import SignInAndSignUpPage from './pages/SignInAndSignUpPage/SignInAndSignUpPage';
+import Checkout from './pages/Checkout/Checkout';
 
 import './App.css';
 
 function App() {
+
+  const currentUser = useSelector(state => state.user.currentUser);
+  
 
   const signOut = () => {
     setCurrentUser(null)
@@ -25,14 +31,10 @@ function App() {
       if(userAuth){
         const userRef = await createUserProfileDocument(userAuth);
         await userRef.onSnapshot((snapshot) => (
-          dispatch({
-            type:"SET_CURRENT_USER",
-            payload:{
-              id: snapshot.id,
-              displayName: snapshot.data().displayName,
-              email: snapshot.data().email
-            }
-          })
+          
+          dispatch(
+            setCurrentUser({id:snapshot.id, displayName:snapshot.data().displayName, email: snapshot.data().email })
+          )
         ))
       }
     })
@@ -45,7 +47,8 @@ function App() {
       <Switch>
         <Route exact path='/' component={HomePage} />
         <Route path='/shop' component={ShopPage} />
-        <Route path='/signin' component={SignInAndSignUpPage} />
+        <Route exact path='/signin' render = {() => currentUser ?  <Redirect to = "/" /> : <SignInAndSignUpPage /> } />
+        <Route exact path='/checkout' component={Checkout} />
       </Switch>
     </div>
   );
